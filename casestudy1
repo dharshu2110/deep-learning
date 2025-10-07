@@ -1,0 +1,43 @@
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+
+# Load the MNIST dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Normalize the pixel values to the range 0-1
+x_train = x_train.astype('float32') / 255.0
+x_test = x_test.astype('float32') / 255.0
+
+# Convert labels to one-hot encoding
+y_train = to_categorical(y_train, 10)
+y_test = to_categorical(y_test, 10)
+
+# Build the multi-layer neural network model
+model = Sequential([
+    Flatten(input_shape=(28, 28)),  # Flatten 28x28 images to 1D vector of size 784
+    Dense(128, activation='relu'),  # First hidden layer with 128 neurons and ReLU activation
+    Dense(64, activation='relu'),   # Second hidden layer with 64 neurons and ReLU activation
+    Dense(10, activation='softmax') # Output layer for 10 classes with softmax activation
+])
+
+# Compile the model with loss function, optimizer, and metrics
+model.compile(
+    loss='categorical_crossentropy',  # Suitable for multi-class classification
+    optimizer='adam',                  # Adam optimizer
+    metrics=['accuracy']               # Report accuracy during training
+)
+
+# Train the model
+model.fit(
+    x_train, y_train,
+    epochs=10,           # Number of training epochs
+    batch_size=32,       # Mini-batch size
+    validation_split=0.1 # Use 10% of training data for validation
+)
+
+# Evaluate the model on test data
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print(f'Test accuracy: {test_acc:.4f}')
